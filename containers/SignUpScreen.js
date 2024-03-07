@@ -131,6 +131,7 @@ export default function SignUpScreen({ setToken }) {
                   alert("Il y a un souci dans votre formulaire!");
                 }
               } catch (error) {
+                console.log("error", error.message);
                 alert("Ce username ou cet email sont déjà utilisés");
               }
             }}

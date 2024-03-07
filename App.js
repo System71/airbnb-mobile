@@ -9,7 +9,11 @@ import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
 import SignUpScreen from "./containers/SignUpScreen";
 import SettingsScreen from "./containers/SettingsScreen";
+import AroundMeScreen from "./containers/AroundMeScreen";
+import RoomScreen from "./containers/RoomScreen";
 import SplashScreen from "./containers/SplashScreen";
+import HeaderCenter from "./components/HeaderCenter";
+import { AntDesign } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -17,6 +21,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
+  const [userID, setUserID] = useState(null);
 
   const setToken = async (token) => {
     if (token) {
@@ -26,6 +31,18 @@ export default function App() {
     }
 
     setUserToken(token);
+    console.log("token=", token);
+  };
+
+  const setID = async (ID) => {
+    if (ID) {
+      await AsyncStorage.setItem("userID", ID);
+    } else {
+      await AsyncStorage.removeItem("userID");
+    }
+
+    setUserID(ID);
+    console.log("ID=", ID);
   };
 
   useEffect(() => {
@@ -33,10 +50,12 @@ export default function App() {
     const bootstrapAsync = async () => {
       // We should also handle error for production apps
       const userToken = await AsyncStorage.getItem("userToken");
+      const userID = await AsyncStorage.getItem("userID");
 
       // This will switch to the App screen or Auth screen and this loading
       // screen will be unmounted and thrown away.
       setUserToken(userToken);
+      setUserID(userID);
 
       setIsLoading(false);
     };
@@ -56,10 +75,10 @@ export default function App() {
           // No token found, user isn't signed in
           <>
             <Stack.Screen name="SignIn">
-              {() => <SignInScreen setToken={setToken} />}
+              {() => <SignInScreen setToken={setToken} setID={setID} />}
             </Stack.Screen>
             <Stack.Screen name="SignUp">
-              {() => <SignUpScreen setToken={setToken} />}
+              {() => <SignUpScreen setToken={setToken} setID={setID} />}
             </Stack.Screen>
           </>
         ) : (
@@ -83,47 +102,68 @@ export default function App() {
                   }}
                 >
                   {() => (
-                    <Stack.Navigator>
-                      <Stack.Screen
-                        name="Home"
-                        options={{
-                          title: "My App",
-                          headerStyle: { backgroundColor: "red" },
-                          headerTitleStyle: { color: "white" },
-                        }}
-                      >
-                        {() => <HomeScreen />}
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: () => <HeaderCenter />,
+                        headerTitleAlign: "center",
+                      }}
+                    >
+                      <Stack.Screen name="Home">
+                        {(props) => <HomeScreen {...props} />}
                       </Stack.Screen>
 
-                      <Stack.Screen
-                        name="Profile"
-                        options={{
-                          title: "User Profile",
-                        }}
-                      >
-                        {() => <ProfileScreen />}
+                      <Stack.Screen name="room">
+                        {() => <RoomScreen />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
                 </Tab.Screen>
                 <Tab.Screen
-                  name="TabSettings"
+                  name="TabAroundMe"
                   options={{
-                    tabBarLabel: "Settings",
+                    tabBarLabel: "Around Me",
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons name={"settings"} size={size} color={color} />
+                      <Ionicons name="earth" size={size} color={color} />
                     ),
                   }}
                 >
                   {() => (
-                    <Stack.Navigator>
-                      <Stack.Screen
-                        name="Settings"
-                        options={{
-                          title: "Settings",
-                        }}
-                      >
-                        {() => <SettingsScreen setToken={setToken} />}
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: () => <HeaderCenter />,
+                        headerTitleAlign: "center",
+                      }}
+                    >
+                      <Stack.Screen name="AroundMe">
+                        {(props) => <AroundMeScreen {...props} />}
+                      </Stack.Screen>
+                    </Stack.Navigator>
+                  )}
+                </Tab.Screen>
+                <Tab.Screen
+                  name="TabProfile"
+                  options={{
+                    tabBarLabel: "Profile",
+                    tabBarIcon: ({ color, size }) => (
+                      <AntDesign name="user" size={size} color={color} />
+                    ),
+                  }}
+                >
+                  {() => (
+                    <Stack.Navigator
+                      screenOptions={{
+                        headerTitle: () => <HeaderCenter />,
+                        headerTitleAlign: "center",
+                      }}
+                    >
+                      <Stack.Screen name="profile">
+                        {() => (
+                          <ProfileScreen
+                            userToken={userToken}
+                            setUserToken={setUserToken}
+                            userID={userID}
+                          />
+                        )}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}

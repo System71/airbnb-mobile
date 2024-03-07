@@ -11,7 +11,7 @@ import { useState } from "react";
 import axios from "axios";
 import { FontAwesome } from "@expo/vector-icons";
 
-export default function SignInScreen({ setToken }) {
+export default function SignInScreen({ setToken, setID }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordHide, setPasswordHide] = useState(true);
@@ -76,6 +76,7 @@ export default function SignInScreen({ setToken }) {
               console.log("response", response.data);
 
               setToken(response.data.token);
+              setID(response.data.id);
             }}
           >
             <Text style={styles.btnText}>Sign in</Text>
